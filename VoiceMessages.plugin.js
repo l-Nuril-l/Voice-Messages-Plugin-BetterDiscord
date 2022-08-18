@@ -268,7 +268,6 @@ module.exports = (() => {
                     BdApi.showToast("Started Recording", {
                         type: "success"
                     })
-                    console.log(1)
                     const result = []
                     const recordStream = record.start()
                     recordStream.on('data', function (chunk) {
