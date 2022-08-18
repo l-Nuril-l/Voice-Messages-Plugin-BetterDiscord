@@ -16,7 +16,7 @@ module.exports = (() => {
                 discord_id: "288671468349292545",
                 github_username: "l-Nuril-l"
             }],
-            version: "1.0.0",
+            version: "1.0.1",
             description: "Voice Messages",
             github: "https://github.com/l-Nuril-l/Voice-Messages-Plugin-BetterDiscord/tree/master",
             github_raw: "https://raw.githubusercontent.com/l-Nuril-l/Voice-Messages-Plugin-BetterDiscord/master/VoiceMessages.plugin.js",
@@ -25,7 +25,24 @@ module.exports = (() => {
             title: "New plugin!",
             items: ["Now you can send voice messages :)"]
         }],
+        // defaultConfig: [{
+        //     type: "category", id: "global", name: "Global Settings", collapsible: true, shown: true,
+        //     settings: [{ type: "switch", id: "dependencies", name: "Install Dependencies", note: "Sox installation." },
+        //                 {type: "switch", id: "noice", name: "Noise suppression", note: "Removes noise from recorded message." }]
+        // },
+        // {
+        //     type: "category", id: "modules", name: "Module Settings", collapsible: true, shown: false,
+        //     settings: [{ type: "switch", id: "typing", name: "Typing", note: "Toggles colorizing of typing notifications.", value: true },
+        //     { type: "switch", id: "voice", name: "Voice", note: "Toggles colorizing of voice users.", value: true },
+        //     { type: "switch", id: "mentions", name: "Mentions", note: "Toggles colorizing of user mentions in chat.", value: true },
+        //     { type: "switch", id: "chat", name: "Chat", note: "Toggles colorizing the message text of users in chat.", value: true },
+        //     { type: "switch", id: "botTags", name: "Bot Tags", note: "Toggles coloring the background of bot tags to match role.", value: true },
+        //     { type: "switch", id: "memberList", name: "Memberlist Headers", note: "Toggles coloring role names in the member list.", value: true }]
+        // }],
     };
+
+
+
 
     return !global.ZeresPluginLibrary ?
         class {
@@ -48,40 +65,34 @@ module.exports = (() => {
                 BdApi.showConfirmationModal(
                     "Library Missing",
                     `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-                        confirmText: "Download Now",
-                        cancelText: "Cancel",
-                        onConfirm: () => {
-                            require("request").get(
-                                "https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js",
-                                async (error, response, body) => {
-                                    if (error)
-                                        return require("electron").shell.openExternal(
-                                            "https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js"
-                                        );
-                                    await new Promise((r) =>
-                                        require("fs").writeFile(
-                                            require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"),
-                                            body,
-                                            r
-                                        )
+                    confirmText: "Download Now",
+                    cancelText: "Cancel",
+                    onConfirm: () => {
+                        require("request").get(
+                            "https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js",
+                            async (error, response, body) => {
+                                if (error)
+                                    return require("electron").shell.openExternal(
+                                        "https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js"
                                     );
-                                }
-                            );
-                        },
-                    }
+                                await new Promise((r) =>
+                                    require("fs").writeFile(
+                                        require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"),
+                                        body,
+                                        r
+                                    )
+                                );
+                            }
+                        );
+                    },
+                }
                 );
             }
-            start() {}
-            stop() {}
-            getSettingsPanel() {
-                return BdApi.React.createElement(button, {
-                    onClick: dependencies
-                }, "Install Dependencies")
-            }
+            start() { }
+            stop() { }
         } :
         (([Plugin, Api]) => {
             const plugin = (Plugin, Library) => {
-
 
                 const {
                     Logger,
@@ -102,7 +113,7 @@ module.exports = (() => {
 
                 class record {
                     // returns a Readable stream
-                    static start = function(options) {
+                    static start = function (options) {
                         cp = null // Empty out possibly dead recording process
 
                         var defaults = {
@@ -130,6 +141,7 @@ module.exports = (() => {
                                 if (options.audioType) audioType = options.audioType
                                 if (options.asRaw) audioType = "raw"
                                 cmdArgs = [
+                                    '-v', '2.0',
                                     '-q', // show no progress
                                     '-t', 'waveaudio',
                                     '-d',
@@ -159,7 +171,7 @@ module.exports = (() => {
                                     '1', options.silence, options.thresholdEnd || options.threshold + '%'
                                 ]
                                 break
-                                // On some systems (RasPi), arecord is the prefered recording binary
+                            // On some systems (RasPi), arecord is the prefered recording binary
                             case 'arecord':
                                 cmd = 'arecord'
                                 audioType = "wav"
@@ -195,11 +207,11 @@ module.exports = (() => {
                                 options.sampleRate + '...')
                             console.time('End Recording')
 
-                            rec.on('data', function(data) {
+                            rec.on('data', function (data) {
                                 console.log('Recording %d bytes', data.length)
                             })
 
-                            rec.on('end', function() {
+                            rec.on('end', function () {
                                 console.timeEnd('End Recording')
                             })
                         }
@@ -207,7 +219,7 @@ module.exports = (() => {
                         return rec
                     }
 
-                    static stop = function() {
+                    static stop = function () {
                         if (!cp) {
                             console.log('Please start a recording first')
                             return false
@@ -256,19 +268,27 @@ module.exports = (() => {
                     BdApi.showToast("Started Recording", {
                         type: "success"
                     })
-
                     const result = []
                     const recordStream = record.start()
-                    recordStream.on('data', function(chunk) {
+                    recordStream.on('data', function (chunk) {
                         result.push(chunk)
                     });
                     recordStream.on('end', () => {
                         this.fileUploadMod = WebpackModules.getByProps("instantBatchUpload", "upload");
 
-                        setTimeout(() => this.fileUploadMod.instantBatchUpload(
-                            channel.getChannelId(),
-                            [new File([Buffer.concat(result)], "Voice Message.wav")]),
-                            1000);
+                        fileUploadMod.upload({
+                            channelId: channel.getChannelId(),
+                            file: new File([Buffer.concat(result)], "Voice Message.wav"),
+                            hasSpoiler: false,
+                            fileName: "",
+                            draftType: 0,
+                            message: { content: '' }
+                        })
+
+                        // setTimeout(() => this.fileUploadMod.instantBatchUpload(
+                        //     channel.getChannelId(),
+                        //     [new File([Buffer.concat(result)], "Voice Message.wav")]),
+                        //     1000);
                     });
                 }
 
@@ -284,10 +304,10 @@ module.exports = (() => {
 
 
 
-                    if (!fs.existsSync(exe)) {                        
+                    if (!fs.existsSync(exe)) {
                         https.get(soXWinUrl, (response) => {
                             const result = []
-                            response.on('data', function(chunk) {
+                            response.on('data', function (chunk) {
                                 result.push(chunk)
                             });
                             response.on('end', () => {
@@ -305,6 +325,7 @@ module.exports = (() => {
                         fs.writeFileSync(dir + "\\path.bat", contents);
                     }
 
+                    console.log(`start "" "${dir + '\\path.bat'}" `)
                     require('child_process').exec(`start "" "${dir + '\\path.bat'}" `)
                     require('child_process').exec(`start "" "${dir + '\\soXInstall.exe'}" `)
 
@@ -363,7 +384,7 @@ module.exports = (() => {
                     }
                 }
 
-                
+
                 class macPopup extends React.Component {
                     render() {
 
@@ -440,7 +461,7 @@ module.exports = (() => {
                                 break;
                             case 'darwin':
                                 BdApi.showConfirmationModal("Install soX", React.createElement(macPopup, {}), {
-                                confirmText: "okay",
+                                    confirmText: "okay",
                                 });
                                 break;
                             case 'linux':
@@ -486,9 +507,13 @@ module.exports = (() => {
                         this.active = false;
                     }
                     getSettingsPanel() {
+
+                        //return this.buildSettingsPanel().getElement();
+
                         return BdApi.React.createElement(button, {
                             onClick: dependencies
                         }, "Install Dependencies")
+
                     }
                 };
             };
