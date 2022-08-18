@@ -16,7 +16,7 @@ module.exports = (() => {
                 discord_id: "288671468349292545",
                 github_username: "l-Nuril-l"
             }],
-            version: "1.0.0",
+            version: "1.0.1",
             description: "Voice Messages",
             github: "https://github.com/l-Nuril-l/Voice-Messages-Plugin-BetterDiscord/tree/master",
             github_raw: "https://raw.githubusercontent.com/l-Nuril-l/Voice-Messages-Plugin-BetterDiscord/master/VoiceMessages.plugin.js",
