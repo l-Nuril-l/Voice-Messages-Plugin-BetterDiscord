@@ -1,5 +1,6 @@
 /**
  * @name VoiceMessages
+ * @version 1.0.1
  * @author Nuril
  * @authorId 288671468349292545
  * @website https://github.com/l-Nuril-l
