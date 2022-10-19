@@ -1,3 +1,7 @@
+# Doesn't work anymore
+Previously Discord limited access to the camera and microphone, so this plugin used third-party software to record sound from the microphone, after one of the updates Discord plugins can no longer run third-party processes. 
+As a result, the plugin will no longer work.
+
 # Installation / Usage
 
 1. Download the `VoiceMessages.plugin.js` file and place it inside of your plugins folder
